@@ -7,3 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ssb-handshake = { version = "0.5.1", default-features = false }
+
+[patch.crates-io]
+curve25519-dalek = { path = "deps/curve25519-dalek/" }
