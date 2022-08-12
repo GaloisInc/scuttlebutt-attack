@@ -7,7 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ssb-handshake = { version = "0.5.1", default-features = false }
+ssb-crypto = { version = "0.2.2", default-features = false, features = ["dalek"] }
+ssb-handshake = { path = "deps/ssb-handshake", default-features = false }
+genio = { version = "0.2.1", default-features = false }
+rand = { version = "0.7.3", default_features = false }
+rand_chacha = { version = "0.2.2" }
 
 [patch.crates-io]
 curve25519-dalek = { path = "deps/curve25519-dalek/" }
