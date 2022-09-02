@@ -27,8 +27,8 @@ pub fn check_trace<
     const NUM_CHANNELS: usize,
     const NUM_THREADS: usize,
 >(
-    threads: &[Thread; NUM_THREADS],
     channels: &[Channel; NUM_CHANNELS],
+    threads: &[Thread; NUM_THREADS],
     events: &[Event],
     data_len: usize,
 ) {

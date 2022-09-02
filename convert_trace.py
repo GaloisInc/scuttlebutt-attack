@@ -11,6 +11,7 @@ def parse_args():
     parser.add_argument('num_channels', type=int)
     parser.add_argument('num_threads', type=int)
     parser.add_argument('num_events', type=int)
+    parser.add_argument('num_data_bytes', type=int)
     parser.add_argument('recording_path', metavar='recording.cbor', nargs='?')
     return parser.parse_args()
 
@@ -128,22 +129,27 @@ def parse_recording(args):
             'first_event': first_event,
             }
 
-    return events, num_valid_events, channels, threads
+    assert len(all_data) <= args.num_data_bytes, \
+            'too many data bytes in recording: %d > %d' % (len(all_data), args.num_data_bytes)
+    all_data.extend(bytes(args.num_data_bytes - len(all_data)))
+
+    return events, num_valid_events, channels, threads, all_data
 
 def dummy_values(args):
     events = [EMPTY_EVENT] * args.num_events
     num_valid_events = 0
     channels = [EMPTY_CHANNEL] * args.num_channels
     threads = [EMPTY_THREAD] * args.num_threads
-    return events, num_valid_events, channels, threads
+    data_bytes = bytes(args.num_data_bytes)
+    return events, num_valid_events, channels, threads, data_bytes
 
 
 args = parse_args()
 
 if args.recording_path is not None:
-    events, num_valid_events, channels, threads = parse_recording(args)
+    events, num_valid_events, channels, threads, data_bytes = parse_recording(args)
 else:
-    events, num_valid_events, channels, threads = dummy_values(args)
+    events, num_valid_events, channels, threads, data_bytes = dummy_values(args)
 
 # Generate code
 
@@ -177,4 +183,13 @@ print('#[link_section = ".rodata.secret"]')
 print('pub static CC_SSB_THREADS: [Thread; NUM_THREADS] = [')
 for thr in threads:
     print('  Thread { first_event: %d },' % (thr['first_event'],))
+print('];')
+
+print('\n#[no_mangle]')
+print('#[link_section = ".rodata.secret"]')
+print('pub static CC_SSB_DATA: [u8; NUM_DATA_BYTES] = [')
+for i in range(0, len(data_bytes), 16):
+    chunk = data_bytes[i : i + 16]
+    s = '  ' + ''.join('0x%02x, ' % x for x in chunk)
+    print(s)
 print('];')
