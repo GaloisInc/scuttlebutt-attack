@@ -1,10 +1,11 @@
 use std::cmp;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io;
 use std::mem;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{self, Sender, Receiver};
-use std::thread;
+use std::thread::{self, ThreadId};
 use genio::{Read, Write};
 use rand::SeedableRng;
 use rand_chacha;
@@ -22,6 +23,7 @@ pub enum EventKind {
 
 #[derive(Debug, Serialize)]
 pub struct Event {
+    thread_id: u32,
     channel_id: u32,
     kind: EventKind,
 }
@@ -30,6 +32,7 @@ pub struct Event {
 struct Context {
     events: Vec<Event>,
     next_channel_id: u32,
+    thread_id_map: HashMap<ThreadId, u32>,
 }
 
 impl Context {
@@ -38,26 +41,46 @@ impl Context {
         self.next_channel_id += 1;
         x
     }
+
+    fn set_thread_id(&mut self, id: u32) {
+        let thread_id = thread::current().id();
+        assert!(!self.thread_id_map.contains_key(&thread_id));
+        self.thread_id_map.insert(thread_id, id);
+    }
+
+    fn current_thread_id(&mut self) -> u32 {
+        let thread_id = thread::current().id();
+        self.thread_id_map.get(&thread_id).cloned()
+            .expect("no ID was set for this thread")
+    }
 }
 
 #[derive(Clone, Default)]
 struct ContextRef(Arc<Mutex<Context>>);
 
 impl ContextRef {
+    fn set_thread_id(&self, id: u32) {
+        self.0.lock().unwrap().set_thread_id(id);
+    }
+
     fn emit_read(&self, channel_id: u32, len: usize) {
+        let mut cx = self.0.lock().unwrap();
         let evt = Event {
+            thread_id: cx.current_thread_id(),
             channel_id,
             kind: EventKind::Read(len),
         };
-        self.0.lock().unwrap().events.push(evt);
+        cx.events.push(evt);
     }
 
     fn emit_write(&self, channel_id: u32, buf: &[u8]) {
+        let mut cx = self.0.lock().unwrap();
         let evt = Event {
+            thread_id: cx.current_thread_id(),
             channel_id,
             kind: EventKind::Write(buf.to_owned().into_boxed_slice()),
         };
-        self.0.lock().unwrap().events.push(evt);
+        cx.events.push(evt);
     }
 
     pub fn make_channel(&self) -> (ChannelWriter, ChannelReader) {
@@ -178,12 +201,18 @@ fn main() -> Result<(), serde_cbor::Error> {
     let channel1 = ChannelPair(w1, r2);
     let channel2 = ChannelPair(w2, r1);
 
+    let ctx2 = ctx.clone();
     let s = thread::spawn(move || {
+        ctx2.set_thread_id(0);
         server::run(&mut rng, channel1).unwrap();
         eprintln!("server: handshake succeeded");
     });
+    let ctx2 = ctx.clone();
     //let c = thread::spawn(move || client_thread(channel2).unwrap());
-    let c = thread::spawn(move || attacker::run(channel2).unwrap());
+    let c = thread::spawn(move || {
+        ctx2.set_thread_id(1);
+        attacker::run(channel2).unwrap();
+    });
 
     s.join().unwrap();
     c.join().unwrap();
