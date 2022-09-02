@@ -2,3 +2,4 @@
 
 pub mod server;
 pub mod attacker;
+pub mod comm_trace;
