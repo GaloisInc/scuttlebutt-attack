@@ -154,7 +154,8 @@ else:
 # Generate code
 
 print('use scuttlebutt_attack::comm_trace::{Event, EventKind, Channel, Thread};')
-print('use scuttlebutt_attack::comm_trace::{NUM_EVENTS, NUM_CHANNELS, NUM_THREADS};')
+print('use scuttlebutt_attack::comm_trace_data::{'
+        'NUM_EVENTS, NUM_CHANNELS, NUM_THREADS, NUM_DATA_BYTES};')
 
 print('\n#[no_mangle]')
 print('#[link_section = ".rodata.secret"]')
