@@ -1,5 +1,7 @@
+use core::cmp;
 use core::ops::Range;
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub enum EventKind {
     Send,
     Recv,
@@ -65,8 +67,8 @@ pub fn check_trace<
         // Each `Event`s `range` must cover some subset of the data array.
         assert!(event.range.start <= data_len);
         assert!(event.range.end <= data_len);
-        // Each `Event`s `range` must not run backwards (must have `start <= end`).
-        assert!(event.range.start <= event.range.end);
+        // Each `Event`s `range` must be nonempty and must not run backwards.
+        assert!(event.range.start < event.range.end);
 
         match event.kind {
             EventKind::Send => {
@@ -107,5 +109,94 @@ pub fn check_trace<
     // last `next_event_for_thread` was incorrect.
     for thread_id in 0 .. NUM_THREADS {
         assert_eq!(expected_next_event_for_thread[thread_id], events.len());
+    }
+}
+
+
+pub struct ThreadState {
+    /// Index of the next event that this thread should perform.  This will be equal to
+    /// `events.len()` if there are no events to perform.
+    next_event: usize,
+    /// Current read/write position within the current event.  This is always within `event.range`;
+    /// in particular, `pos < event.range.end`, since we advance to the next event upon reaching
+    /// the end.
+    pos: usize,
+}
+
+impl ThreadState {
+    pub fn new(events: &[Event], thread: &Thread) -> ThreadState {
+        ThreadState {
+            next_event: thread.first_event,
+            pos: events.get(thread.first_event).map_or(0, |event| event.range.start),
+        }
+    }
+
+    /// Send some data on a channel.  Returns the number of bytes sent.  Returns a short write
+    /// (possibly zero bytes) if the thread is trying to send unexpected data.
+    pub fn send(
+        &mut self,
+        events: &[Event],
+        all_data: &[u8],
+        channel_id: usize,
+        buf: &[u8],
+    ) -> usize {
+        let event = &events[self.next_event];
+        if event.kind != EventKind::Send || event.channel_id != channel_id {
+            return 0;
+        }
+
+        let expect_data = &all_data[self.pos .. event.range.end];
+        // Count the number of bytes that match the expected data.  We send only this many bytes;
+        // upon seeing a non-matching byte, the channel rejects further data.
+        let n = buf.iter().cloned().zip(expect_data.iter().cloned())
+            .take_while(|(actual, expected)| actual == expected)
+            .count();
+
+        if n > 0 {
+            if self.pos + n == event.range.end {
+                self.next_event = event.next_event_for_thread;
+                // Note that the new event could be on a different channel, so we need to reset
+                // `pos`.
+                self.pos = events.get(self.next_event).map_or(0, |event| event.range.start);
+            } else {
+                self.pos += n;
+            }
+        }
+
+        n
+    }
+
+    pub fn recv(
+        &mut self,
+        events: &[Event],
+        all_data: &[u8],
+        channel_id: usize,
+        buf: &mut [u8],
+    ) -> usize {
+        let event = &events[self.next_event];
+        if event.kind != EventKind::Recv || event.channel_id != channel_id {
+            return 0;
+        }
+
+        let n = cmp::min(buf.len(), event.range.end - self.pos);
+
+        if n > 0 {
+            buf[..n].copy_from_slice(&all_data[self.pos .. self.pos + n]);
+
+            if self.pos + n == event.range.end {
+                self.next_event = event.next_event_for_thread;
+                // Note that the new event could be on a different channel, so we need to reset
+                // `pos`.
+                self.pos = events.get(self.next_event).map_or(0, |event| event.range.start);
+            } else {
+                self.pos += n;
+            }
+        }
+
+        n
+    }
+
+    pub fn is_done(&self, events: &[Event]) -> bool {
+        self.next_event == events.len()
     }
 }
