@@ -10,6 +10,7 @@ use genio::{Read, Write};
 use rand::SeedableRng;
 use rand_chacha;
 use scuttlebutt_attack::{server, attacker};
+use scuttlebutt_attack::util::ChannelPair;
 use serde::Serialize;
 use serde_bytes::Bytes;
 use serde_cbor;
@@ -159,34 +160,6 @@ impl Read for ChannelReader {
         self.consumed += n;
         self.ctx.emit_read(self.channel_id, n);
         return Ok(n);
-    }
-}
-
-
-struct ChannelPair(ChannelWriter, ChannelReader);
-
-impl Write for ChannelPair {
-    type WriteError = <ChannelWriter as Write>::WriteError;
-    type FlushError = <ChannelWriter as Write>::FlushError;
-
-    fn write(&mut self, buf: &[u8]) -> Result<usize, Self::WriteError> {
-        self.0.write(buf)
-    }
-
-    fn flush(&mut self) -> Result<(), Self::FlushError> {
-        self.0.flush()
-    }
-
-    fn size_hint(&mut self, bytes: usize) {
-        self.0.size_hint(bytes)
-    }
-}
-
-impl Read for ChannelPair {
-    type ReadError = <ChannelReader as Read>::ReadError;
-
-    fn read(&mut self, buf: &mut [u8]) -> Result<usize, Self::ReadError> {
-        self.1.read(buf)
     }
 }
 
