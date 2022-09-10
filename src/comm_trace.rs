@@ -140,6 +140,9 @@ impl ThreadState {
         channel_id: usize,
         buf: &[u8],
     ) -> usize {
+        if self.next_event >= events.len() {
+            return 0;
+        }
         let event = &events[self.next_event];
         if event.kind != EventKind::Send || event.channel_id != channel_id {
             return 0;
@@ -173,6 +176,9 @@ impl ThreadState {
         channel_id: usize,
         buf: &mut [u8],
     ) -> usize {
+        if self.next_event >= events.len() {
+            return 0;
+        }
         let event = &events[self.next_event];
         if event.kind != EventKind::Recv || event.channel_id != channel_id {
             return 0;
