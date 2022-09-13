@@ -18,5 +18,14 @@ rustc --crate-type staticlib secrets.rs \
 cargo run --bin victim
 # Build and run the attacker program:
 cargo run --bin attacker_merged
+
+# Build LLVM IR for the victim (server) program (WIP):
+{
+    cd victim
+    RUSTC_BOOTSTRAP=1 cargo +stable rustc \
+        --release -Z build-std=core --target ../target.json -- --emit llvm-ir
+}
+# The output filename contains a random hash.  Find it as follows:
+find target -name \*victim\*.ll
 ```
 
