@@ -53,3 +53,17 @@ impl Write for MergedChannel<'_> {
     fn size_hint(&mut self, _bytes: usize) {}
 }
 
+
+#[cfg(not(feature = "microram"))]
+pub fn exit() -> ! {
+    std::eprintln!("called exit()");
+    std::process::exit(0);
+}
+
+#[cfg(feature = "microram")]
+pub fn exit() -> ! {
+    extern "C" {
+        fn __cc_exit() -> !;
+    }
+    unsafe { __cc_exit() };
+}

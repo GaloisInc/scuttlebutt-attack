@@ -37,3 +37,13 @@ riscv64-unknown-elf-nm victim.o | grep ' [uU] '
 
 ```
 
+
+## Build configurations
+
+* `std`, no `secrets`, default target: used to build `recorder` to generate the
+  secrets file.
+* `std`, `secrets`, default target: used for offline testing.  The three main
+  binaries (`victim`, `attacker`, and `checker`) can be built in this mode.
+* `microram`, `secrets`, rv64 target: used for the actual MicroRAM/RISC-V
+  build.  The three main binaries and also the `kernel` can be built in this
+  mode.

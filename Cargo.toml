@@ -25,7 +25,21 @@ codegen-units = 1
 
 [features]
 std = ["serde", "serde_bytes", "serde_cbor"]
+secrets = []
+microram = []
 
 [[bin]]
 name = "recorder"
 required-features = ["std"]
+
+[[bin]]
+name = "victim"
+required-features = ["secrets"]
+
+[[bin]]
+name = "attacker"
+required-features = ["secrets"]
+
+[[bin]]
+name = "attacker_merged"
+required-features = ["secrets"]
