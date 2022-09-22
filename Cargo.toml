@@ -29,6 +29,3 @@ std = ["serde", "serde_bytes", "serde_cbor"]
 [[bin]]
 name = "recorder"
 required-features = ["std"]
-
-[workspace]
-members = ["victim"]

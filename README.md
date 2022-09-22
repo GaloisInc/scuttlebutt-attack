@@ -19,32 +19,19 @@ cargo run --bin victim
 # Build and run the attacker program:
 cargo run --bin attacker_merged
 
-# Build LLVM IR for the victim (server) program (WIP):
-{
-    cd victim
-    RUSTC_BOOTSTRAP=1 cargo +stable rustc \
-        --release -Z build-std=core --target ../target.json -- --emit llvm-ir
-}
-# The output filename contains a random hash.  Find it as follows:
-find target -name \*victim\*.ll
-
 # Build RISC-V ASM for the victim (server) program:
-{
-    cd victim
-    RUSTC_BOOTSTRAP=1 cargo +stable rustc \
-        --release -Z build-std=core --target ../target-rv64.json -- --emit llvm-bc
-}
+RUSTC_BOOTSTRAP=1 cargo +stable rustc \
+    --release -Z build-std=core --target ../../target-rv64.json -- \
+    --emit llvm-bc -Z no-link --cfg microram
 # The output filename contains a random hash.  Find it as follows:
 find target -name \*victim\*.bc
-cp target/target-rv64/release/deps/scuttlebutt_attack_victim-7a6dee58ca8824bb.bc \
-    scuttlebutt_attack_victim.bc
+cp target/target-rv64/release/deps/victim-7a6dee58ca8824bb.bc victim.bc
 # Optimize bitcode and produce assembly:
-opt-13 scuttlebutt_attack_victim.bc -O3 -mattr=+m | \
-    llc-13 -o scuttlebutt_attack_victim.s -relocation-model=static -mattr=+m
+opt-13 victim.bc -O3 -mattr=+m | \
+    llc-13 -o victim.s -relocation-model=static -mattr=+m
 # Compile the asm to an object file and check for undefined symbols:
-clang -target riscv64-unknown-none-elf \
-    -c scuttlebutt_attack_victim.s -o scuttlebutt_attack_victim.o
-riscv64-unknown-elf-nm scuttlebutt_attack_victim.o | grep ' [uU] '
+clang -target riscv64-unknown-none-elf -c victim.s -o victim.o
+riscv64-unknown-elf-nm victim.o | grep ' [uU] '
 # This should list only __cc_* intrinsics, CC_SSB_* secret inputs, and memcmp,
 # memcpy, and memset library functions.
 
