@@ -10,7 +10,7 @@ ssb-handshake = { path = "deps/ssb-handshake", default-features = false }
 genio = { version = "0.2.1", default-features = false }
 rand = { version = "0.7.3", default-features = false }
 rand_chacha = { version = "0.2.2", default-features = false }
-serde = { version = "1", optional = true }
+serde = { version = "1", optional = true, features = ["derive"] }
 serde_bytes = { version = "0.11", optional = true }
 serde_cbor = { version = "0.11", optional = true }
 
@@ -42,4 +42,12 @@ required-features = ["secrets"]
 
 [[bin]]
 name = "attacker_merged"
+required-features = ["secrets"]
+
+[[bin]]
+name = "kernel_attacker"
+required-features = ["secrets"]
+
+[[bin]]
+name = "checker"
 required-features = ["secrets"]
