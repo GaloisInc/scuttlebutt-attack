@@ -3,12 +3,24 @@ set -xeuo pipefail
 
 name="$1"
 
+if [[ "$#" -eq 2 ]]; then
+    package_dir=$2
+else
+    package_dir=.
+fi
+
+features="secrets,microram"
+if [[ -n "${WITH_CONSTANTS-}" ]]; then
+    features="$features,constants"
+fi
+
 # Build RISC-V ASM for the victim (server) program:
 RUSTC_BOOTSTRAP=1 cargo +stable rustc \
-    --release -Z build-std=core --target target-rv64.json --bin "$name" \
-    --features secrets,microram -- --emit llvm-bc -Z no-link
+    --release -Z build-std=core --target target-rv64.json \
+    --manifest-path "$package_dir/Cargo.toml" --bin "$name" \
+    --features "$features" -- --emit llvm-bc -Z no-link
 # The output filename contains a random hash.  Find it as follows:
-bc_path="$(find target -name "*$name*.bc")"
+bc_path="$(find target -name "$name-*.bc")"
 cp "$bc_path" "$name.bc"
 # Optimize bitcode and produce assembly:
 opt-13 "$name.bc" -O3 -mattr=+m | \

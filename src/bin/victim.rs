@@ -10,8 +10,7 @@ use scuttlebutt_attack::util::ChannelPair;
 
 #[cfg_attr(feature = "microram", no_mangle)]
 pub fn main() {
-    // TODO: seed rng using fiat-shamir
-    let mut rng = rand_chacha::ChaCha12Rng::from_seed([77; 32]);
+    let mut rng = rand_chacha::ChaCha12Rng::from_seed(scuttlebutt_attack_constants::SEED);
 
     let state = RefCell::new(ThreadState::new(
         comm_trace_data::events(),

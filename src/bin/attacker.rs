@@ -2,7 +2,6 @@
 #![cfg_attr(feature = "microram", no_main)]
 use scuttlebutt_attack::attacker;
 use scuttlebutt_attack::io_kernel::{self, KernelChannel};
-use scuttlebutt_attack::kernel;
 use scuttlebutt_attack::util::ChannelPair;
 
 #[cfg_attr(feature = "microram", no_mangle)]
@@ -20,5 +19,5 @@ pub fn main() {
 #[cfg(not(feature = "microram"))]
 #[no_mangle]
 pub unsafe extern "C" fn __cc_syscall(num: usize, arg0: usize, arg1: usize, arg2: usize) -> usize {
-    kernel::syscall::<1>(num, arg0, arg1, arg2)
+    scuttlebutt_attack::kernel::syscall::<1>(num, arg0, arg1, arg2)
 }

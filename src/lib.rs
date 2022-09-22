@@ -1,12 +1,13 @@
 #![cfg_attr(feature = "microram", feature(lang_items))]
-#![no_std]
+#![cfg_attr(feature = "microram", no_std)]
 
-#[cfg(feature = "std")] extern crate std;
+#[cfg(feature = "inline-secrets")] extern crate scuttlebutt_attack_secrets;
 
 pub mod server;
 pub mod attacker;
 pub mod comm_trace;
 #[cfg(feature = "secrets")] pub mod comm_trace_data;
+pub mod comm_trace_types;
 #[cfg(feature = "secrets")] pub mod io_merged;
 pub mod io_kernel;
 #[cfg(feature = "secrets")] pub mod kernel;

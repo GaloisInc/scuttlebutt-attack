@@ -1,9 +1,6 @@
-use crate::comm_trace::{self, Event, EventKind, Channel, Thread};
-
-pub const NUM_CHANNELS: usize = 2;
-pub const NUM_THREADS: usize = 2;
-pub const NUM_EVENTS: usize = 16;
-pub const NUM_DATA_BYTES: usize = 512;
+use crate::comm_trace;
+use crate::comm_trace_types::{Event, Channel, Thread};
+use crate::comm_trace_types::{NUM_EVENTS, NUM_CHANNELS, NUM_THREADS, NUM_DATA_BYTES};
 
 // The actual data is in a separate crate, exposed via `extern "Rust"` `static`s, to ensure that
 // neither rustc nor LLVM can use the secret values while optimizing.

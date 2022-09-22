@@ -153,8 +153,11 @@ else:
 
 # Generate code
 
-print('use scuttlebutt_attack::comm_trace::{Event, EventKind, Channel, Thread};')
-print('use scuttlebutt_attack::comm_trace_data::{'
+print('#![no_std]')
+
+print('\n#[path = "../src/comm_trace_types.rs"] pub mod comm_trace_types;')
+print('use crate::comm_trace_types::{Event, EventKind, Channel, Thread};')
+print('use crate::comm_trace_types::{'
         'NUM_EVENTS, NUM_CHANNELS, NUM_THREADS, NUM_DATA_BYTES};')
 
 print('\n#[no_mangle]')

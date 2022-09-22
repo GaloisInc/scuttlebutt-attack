@@ -165,8 +165,7 @@ impl Read for ChannelReader {
 
 
 fn main() -> Result<(), serde_cbor::Error> {
-    // TODO: read rng seed from command line
-    let mut rng = rand_chacha::ChaCha12Rng::from_seed([77; 32]);
+    let mut rng = rand_chacha::ChaCha12Rng::from_seed(scuttlebutt_attack_constants::SEED);
 
     let ctx = ContextRef::default();
     let (w1, r1) = ctx.make_channel();

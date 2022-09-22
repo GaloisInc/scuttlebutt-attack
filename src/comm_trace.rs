@@ -1,27 +1,6 @@
 use core::cmp;
 use core::ops::Range;
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub enum EventKind {
-    Send,
-    Recv,
-}
-
-pub struct Event {
-    pub thread_id: usize,
-    pub channel_id: usize,
-    pub kind: EventKind,
-    pub range: Range<usize>,
-    pub next_event_for_thread: usize,
-}
-
-pub struct Channel {
-    pub start: usize,
-}
-
-pub struct Thread {
-    pub first_event: usize,
-}
+use crate::comm_trace_types::{EventKind, Event, Channel, Thread};
 
 
 /// Check that the trace is internally consistent.
