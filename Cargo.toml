@@ -5,8 +5,8 @@ authors = ["Stuart Pernsteiner <spernsteiner@galois.com>"]
 edition = "2018"
 
 [dependencies]
-ssb-crypto = { version = "0.2.2", default-features = false, features = ["dalek"] }
 ssb-handshake = { path = "deps/ssb-handshake", default-features = false }
+#ssb-crypto = { path = "deps/ssb-crypto", default-features = false }
 genio = { version = "0.2.1", default-features = false }
 rand = { version = "0.7.3", default-features = false }
 rand_chacha = { version = "0.2.2", default-features = false }
@@ -20,16 +20,26 @@ scuttlebutt-attack-constants = { path = "constants", optional = true }
 
 [patch.crates-io]
 curve25519-dalek = { path = "deps/curve25519-dalek/" }
+#ssb-crypto = { path = "deps/ssb-crypto/" }
 
 [features]
 std = ["serde", "serde_bytes", "serde_cbor"]
+# This is enabled when building for MicroRAM.
 microram = []
+# This is set when the attack constants (commitment and seed) are available.
 constants = ["scuttlebutt-attack-constants"]
+# This is set when secret inputs are available.  This is required for all
+# binaries except `recorder`, since `recorder` is the one that produces the
+# secret inputs.
 secrets = []
+# Enable to include secrets inline in the build.  This is useful for testing,
+# but can't be used when building to run in zero knowledge, as the optimizer
+# might consult the secret values and thus produce different results on the
+# prover and verifier.
 inline-secrets = ["scuttlebutt-attack-secrets"]
 
 [workspace]
-members = ["secrets"]
+members = ["secrets", "constants"]
 
 [profile.release]
 lto = true

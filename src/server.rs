@@ -17,9 +17,12 @@ where
     R: CryptoRng + RngCore,
 {
     let net_key = NetworkKey::SSB_MAIN_NET;
+    cc_trace!("generating keypair");
     let keypair = Keypair::generate_with_rng(rng);
+    cc_trace!("generating ephemeral keypair");
     let (eph_pk, eph_sk) = generate_ephemeral_keypair_with_rng(rng);
 
+    cc_trace!("starting server_side");
     server_side(channel, &net_key, &keypair, (eph_pk, eph_sk))?;
     Ok(())
 }

@@ -3,6 +3,13 @@
 
 #[cfg(feature = "inline-secrets")] extern crate scuttlebutt_attack_secrets;
 
+
+macro_rules! cc_trace {
+    ($msg:expr) => {
+        unsafe { crate::__cc_trace(concat!($msg, "\0").as_ptr()) }
+    };
+}
+
 pub mod server;
 pub mod attacker;
 pub mod comm_trace;
@@ -28,3 +35,15 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 #[cfg(feature = "microram")]
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}
+
+
+extern "C" {
+    fn __cc_trace(msg: *const u8);
+    fn __cc_trace_exec(
+        name: *const u8,
+        arg0: usize,
+        arg1: usize,
+        arg2: usize,
+        arg3: usize,
+    );
+}
