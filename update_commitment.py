@@ -17,6 +17,11 @@ def main():
             (COMMITMENT_TOOL,
                 'calc',
                 '--machine-readable',
+                '--uncommitted', '.rodata.secret.ssb_events',
+                '--uncommitted', '.rodata.secret.ssb_num_valid_events',
+                '--uncommitted', '.rodata.secret.ssb_channels',
+                '--uncommitted', '.rodata.secret.ssb_threads',
+                '--uncommitted', '.rodata.secret.ssb_data',
                 trace_cbor),
             check=True,
             stdout=subprocess.PIPE);
