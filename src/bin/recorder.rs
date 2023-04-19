@@ -196,3 +196,19 @@ fn main() -> Result<(), serde_cbor::Error> {
     eprintln!("wrote {} events to {}", ctx_state.events.len(), RECORDING_PATH);
     Ok(())
 }
+
+
+#[cfg(not(feature = "microram"))]
+mod cc {
+    use std::ffi::CStr;
+
+    #[no_mangle]
+    unsafe extern "C" fn __cc_trace(s: *const u8) {
+        eprintln!("[TRACE] {:?}", CStr::from_ptr(s as *const i8));
+    }
+
+    #[no_mangle]
+    unsafe extern "C" fn __cc_trace_exec(s: *const u8, arg0: usize, arg1: usize, arg2: usize, arg3: usize) {
+        eprintln!("[TRACE] {:?}({:x}, {:x}, {:x}, {:x})", CStr::from_ptr(s as *const i8), arg0, arg1, arg2, arg3);
+    }
+}
