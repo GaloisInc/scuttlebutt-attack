@@ -31,8 +31,30 @@ unsafe fn thread_state<const THREAD_ID: usize>() -> &'static mut ThreadState {
     THREAD_STATE.as_mut().unwrap()
 }
 
+const PERMISSION_BIT: usize = 1 << 31;
+
+fn check_user_buffer(ptr: usize, len: usize) {
+    assert!(ptr & PERMISSION_BIT == 0, "buffer must be in userspace");
+    let end = ptr.checked_add(len).unwrap();
+    assert!(end & PERMISSION_BIT == 0, "buffer must be in userspace");
+    // The high bits of `ptr` and `end` must be the same.  This catches the case of a buffer that
+    // starts in one unprivileged region, passes through a privileged region, and ends in a
+    // different unprivileged region.
+    assert!(ptr & (PERMISSION_BIT - 1) == end & (PERMISSION_BIT - 1), "buffer is too large");
+}
+
+unsafe fn user_buffer<'a>(ptr: usize, len: usize) -> &'a [u8] {
+    check_user_buffer(ptr, len);
+    slice::from_raw_parts(ptr as *const u8, len)
+}
+
+unsafe fn user_buffer_mut<'a>(ptr: usize, len: usize) -> &'a mut [u8] {
+    check_user_buffer(ptr, len);
+    slice::from_raw_parts_mut(ptr as *mut u8, len)
+}
+
 pub unsafe fn read<const THREAD_ID: usize>(channel_id: usize, ptr: usize, len: usize) -> usize {
-    let buf = slice::from_raw_parts_mut(ptr as *mut u8, len);
+    let buf = user_buffer_mut(ptr, len);
     let state = thread_state::<THREAD_ID>();
     state.recv(
         comm_trace_data::events(),
@@ -43,7 +65,7 @@ pub unsafe fn read<const THREAD_ID: usize>(channel_id: usize, ptr: usize, len: u
 }
 
 pub unsafe fn write<const THREAD_ID: usize>(channel_id: usize, ptr: usize, len: usize) -> usize {
-    let buf = slice::from_raw_parts(ptr as *const u8, len);
+    let buf = user_buffer(ptr, len);
     let state = thread_state::<THREAD_ID>();
     state.send(
         comm_trace_data::events(),
