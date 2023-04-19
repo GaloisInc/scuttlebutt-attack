@@ -14,7 +14,7 @@ pub unsafe fn syscall<const THREAD_ID: usize>(
     match num {
         SYS_READ => read::<THREAD_ID>(arg0, arg1, arg2),
         SYS_WRITE => write::<THREAD_ID>(arg0, arg1, arg2),
-        SYS_EXIT => io_merged::exit(),
+        SYS_EXIT => exit::<THREAD_ID>(),
         _ => panic!("bad syscall: {:?}", (num, arg0, arg1, arg2)),
     }
 }
@@ -51,4 +51,10 @@ pub unsafe fn write<const THREAD_ID: usize>(channel_id: usize, ptr: usize, len: 
         channel_id,
         buf,
     )
+}
+
+pub unsafe fn exit<const THREAD_ID: usize>() -> usize {
+    let state = thread_state::<THREAD_ID>();
+    assert!(state.is_done(comm_trace_data::events()));
+    io_merged::exit();
 }

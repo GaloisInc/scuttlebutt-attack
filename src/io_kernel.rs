@@ -1,3 +1,4 @@
+//! IO module that works by making syscalls to the kernel.
 use core::cell::RefCell;
 use genio::{Read, Write};
 use crate::comm_trace::ThreadState;

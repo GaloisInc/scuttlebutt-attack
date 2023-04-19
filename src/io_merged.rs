@@ -1,4 +1,6 @@
+//! IO module for use in a "merged" build, where there is no kernel/userspace distinction.
 use core::cell::RefCell;
+use core::ptr;
 use genio::{Read, Write};
 use crate::comm_trace::ThreadState;
 use crate::comm_trace_data;
@@ -63,7 +65,10 @@ pub fn exit() -> ! {
 #[cfg(feature = "microram")]
 pub fn exit() -> ! {
     extern "C" {
-        fn __cc_exit() -> !;
+        fn __cc_answer(val: usize) -> !;
     }
-    unsafe { __cc_exit() };
+    unsafe {
+        ptr::write_volatile(0xffff_ffff_ffff_fff0 as *mut usize, 1);
+        __cc_answer(1);
+    }
 }
