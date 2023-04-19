@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 ssb-handshake = { path = "deps/ssb-handshake", default-features = false }
 #ssb-crypto = { path = "deps/ssb-crypto", default-features = false }
+ssb-crypto = { version = "0.2.2", default-features = false }
 genio = { version = "0.2.1", default-features = false }
 rand = { version = "0.7.3", default-features = false }
 rand_chacha = { version = "0.2.2", default-features = false }
