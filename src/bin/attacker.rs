@@ -13,6 +13,17 @@ pub fn main() {
     io_kernel::exit();
 }
 
+
+#[no_mangle]
+#[link_section = ".rodata.secret.__commitment_randomness__"]
+pub static CC_COMMITMENT_RANDOMNESS: [u8; 32] = [
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
+];
+
+
 // In the native build, `__cc_syscall` dispatches directly to `kernel::syscall` with the
 // appropriate `THREAD_ID`.  In the MicroRAM build, `__cc_syscall` is an intrinsic, which the
 // MicroRAM compiler hooks up to the `__cc_syscall_handler` function in `bin/kernel_attacker.rs`.
