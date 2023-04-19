@@ -161,7 +161,7 @@ print('use crate::comm_trace_types::{'
         'NUM_EVENTS, NUM_CHANNELS, NUM_THREADS, NUM_DATA_BYTES};')
 
 print('\n#[no_mangle]')
-print('#[link_section = ".rodata.secret"]')
+print('#[link_section = ".rodata.secret.ssb_events"]')
 print('pub static CC_SSB_EVENTS: [Event; NUM_EVENTS] = [')
 for evt in events:
     print('  Event { thread_id: %d, channel_id: %d, kind: EventKind::%s, '
@@ -172,28 +172,28 @@ for evt in events:
 print('];')
 
 print('\n#[no_mangle]')
-print('#[link_section = ".rodata.secret"]')
+print('#[link_section = ".rodata.secret.ssb_num_valid_events"]')
 print('pub static CC_SSB_NUM_VALID_EVENTS: usize = %d;' % num_valid_events)
 
 print('\n#[no_mangle]')
-print('#[link_section = ".rodata.secret"]')
+print('#[link_section = ".rodata.secret.ssb_channels"]')
 print('pub static CC_SSB_CHANNELS: [Channel; NUM_CHANNELS] = [')
 for ch in channels:
     print('  Channel { start: %d },' % (ch['start'],))
 print('];')
 
 print('\n#[no_mangle]')
-print('#[link_section = ".rodata.secret"]')
+print('#[link_section = ".rodata.secret.ssb_threads"]')
 print('pub static CC_SSB_THREADS: [Thread; NUM_THREADS] = [')
 for thr in threads:
     print('  Thread { first_event: %d },' % (thr['first_event'],))
 print('];')
 
 print('\n#[no_mangle]')
-print('#[link_section = ".rodata.secret"]')
+print('#[link_section = ".rodata.secret.ssb_data"]')
 print('pub static CC_SSB_DATA: [u8; NUM_DATA_BYTES] = [')
 for i in range(0, len(data_bytes), 16):
     chunk = data_bytes[i : i + 16]
-    s = '  ' + ''.join('0x%02x, ' % x for x in chunk)
+    s = '  ' + ' '.join('0x%02x,' % x for x in chunk)
     print(s)
 print('];')
