@@ -40,7 +40,7 @@ fn check_user_buffer(ptr: usize, len: usize) {
     // The high bits of `ptr` and `end` must be the same.  This catches the case of a buffer that
     // starts in one unprivileged region, passes through a privileged region, and ends in a
     // different unprivileged region.
-    assert!(ptr & (PERMISSION_BIT - 1) == end & (PERMISSION_BIT - 1), "buffer is too large");
+    assert!(ptr & !(PERMISSION_BIT - 1) == end & !(PERMISSION_BIT - 1), "buffer is too large");
 }
 
 unsafe fn user_buffer<'a>(ptr: usize, len: usize) -> &'a [u8] {
