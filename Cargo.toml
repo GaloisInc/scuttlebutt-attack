@@ -40,7 +40,7 @@ secrets = []
 inline-secrets = ["scuttlebutt-attack-secrets"]
 
 [workspace]
-members = ["secrets", "constants"]
+members = ["secrets", "secrets_dummy", "constants"]
 
 [profile.release]
 lto = true

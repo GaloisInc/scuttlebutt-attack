@@ -407,6 +407,10 @@ name = "scuttlebutt-attack-secrets"
 version = "0.1.0"
 
 [[package]]
+name = "scuttlebutt-attack-secrets-dummy"
+version = "0.1.0"
+
+[[package]]
 name = "serde"
 version = "1.0.143"
 source = "registry+https://github.com/rust-lang/crates.io-index"

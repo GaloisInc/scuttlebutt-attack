@@ -1,2 +1,6 @@
 /target
 recording.cbor
+
+/commitment.env
+/constants/lib.rs
+/secrets/lib.rs

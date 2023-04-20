@@ -13,6 +13,12 @@ COMMITMENT_TOOL=$PWD/../witness-checker/target/release/commitment_tool \
 ./record.sh
 ```
 
+# Changing communication trace length
+
+Update the size parameters in `src/comm_trace_types.rs`, and also update the
+definition of `params` in `record.sh`.  Then run `./record.sh dummy` to
+generate a new `secrets-dummy/lib.rs` that uses the new parameters.
+
 # Native builds
 
 ```sh

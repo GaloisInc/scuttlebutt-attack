@@ -1,0 +1,22 @@
+[package]
+name = "scuttlebutt-attack-secrets-dummy"
+version = "0.1.0"
+authors = ["Stuart Pernsteiner <spernsteiner@galois.com>"]
+edition = "2018"
+
+[features]
+microram = []
+secrets = []
+
+[profile.release]
+lto = true
+panic = "abort"
+incremental = false
+codegen-units = 1
+
+[lib]
+path = "lib.rs"
+
+[[bin]]
+name = "secrets_dummy"
+path = "main.rs"
