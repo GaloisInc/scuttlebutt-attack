@@ -1,41 +1,22 @@
-# Build process
+# Updating the commitment and trace
+
+This must be done after any changes that affect the attacker program.
 
 ```sh
-# Build the attacker program:
-./build_microram.sh attacker
-# TODO: compile to microram; commit to the attacker program and step count
-commitment=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
-seed=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
-# TODO: generate constants/lib.rs
+# Build the attacker program
+../scripts/build_scuttlebutt_attacker_cbor
 
-# Run the trace recorder:
-cargo run --features std,constants --bin recorder
-# Generate Rust data structures matching the recording:
-python3 convert_trace.py 2 2 16 512 recording.cbor >secrets/lib.rs
-# Build the secrets library for MicroRAM:
-./build_microram.sh secrets secrets
-# It's not necessary to explicitly the library for native; Cargo will handle it
-# automatically.
+# Update the commitment based on the new attacker program
+COMMITMENT_TOOL=$PWD/../witness-checker/target/release/commitment_tool \
+    python3 update_commitment.py ../out/scuttlebutt/ssb-attacker.cbor
+# Generate new trace to match the new commitment and seed
+./record.sh
+```
 
-# Test native builds of the three main binaries:
+# Native builds
+
+```sh
 cargo run --features constants,secrets,inline-secrets --bin victim
 cargo run --features constants,secrets,inline-secrets --bin attacker
 cargo run --features constants,secrets,inline-secrets --bin checker
-
-# Build the main binaries and the kernel for MicroRAM:
-WITH_CONSTANTS=1 ./build_microram.sh victim
-# attacker binary was already built
-./build_microram.sh checker
-./build_microram.sh attacker_kernel
 ```
-
-
-## Build configurations
-
-* `std`, no `secrets`, default target: used to build `recorder` to generate the
-  secrets file.
-* `std`, `secrets`, default target: used for offline testing.  The three main
-  binaries (`victim`, `attacker`, and `checker`) can be built in this mode.
-* `microram`, `secrets`, rv64 target: used for the actual MicroRAM/RISC-V
-  build.  The three main binaries and also the `kernel` can be built in this
-  mode.
