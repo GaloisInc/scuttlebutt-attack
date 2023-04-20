@@ -17,6 +17,8 @@ def main():
             (COMMITMENT_TOOL,
                 'calc',
                 '--machine-readable',
+                '--randomness-symbol', 'CC_COMMITMENT_RANDOMNESS',
+                '--randomness-length', '32',
                 '--uncommitted', '.rodata.secret.ssb_events',
                 '--uncommitted', '.rodata.secret.ssb_num_valid_events',
                 '--uncommitted', '.rodata.secret.ssb_channels',
