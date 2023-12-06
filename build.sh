@@ -1,10 +1,6 @@
 #!/bin/bash
 set -xeuo pipefail
 
-if [ -n "${ssb_use_dummy_secrets-}" ]; then
-    export cc_secret_objects="build/secrets_dummy.bc"
-fi
-
 case $1 in
     secrets)
         features=microram cc_link=0 ../rust-support/build_microram.sh secrets secrets
@@ -18,6 +14,11 @@ case $1 in
     kernel_attacker)
         features=microram,secrets keep_symbols=__cc_syscall_handler \
             ../rust-support/build_microram.sh kernel_attacker
+        ;;
+    kernel_attacker_dummy)
+        features=microram,secrets keep_symbols=__cc_syscall_handler \
+            cc_secret_objects="build/secrets_dummy.bc" \
+            ../rust-support/build_microram.sh kernel_attacker . kernel_attacker_dummy
         ;;
     checker)
         features=microram,secrets ../rust-support/build_microram.sh checker
