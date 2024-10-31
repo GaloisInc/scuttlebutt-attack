@@ -1,6 +1,6 @@
 [submodule "deps/curve25519-dalek"]
 	path = deps/curve25519-dalek
-	url = ../curve25519-dalek.git
+	url = ../cheesecloth-curve25519-dalek.git
 [submodule "deps/ssb-handshake"]
 	path = deps/ssb-handshake
 	url = ../ssb-handshake.git
