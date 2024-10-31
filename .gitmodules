@@ -3,4 +3,4 @@
 	url = ../curve25519-dalek.git
 [submodule "deps/ssb-handshake"]
 	path = deps/ssb-handshake
-	url = git@gitlab-ext.galois.com:fromager/cheesecloth/ssb-handshake.git
+	url = ../ssb-handshake.git
